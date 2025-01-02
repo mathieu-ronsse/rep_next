@@ -23,18 +23,20 @@ export async function POST(request) {
       );
     }
 
-    const prediction = await replicate.run(
-      "nightmareai/real-esrgan:f121d640bd286e1fdc67f9799164c1d5be36ff74576ee11c803ae5b665dd46aa",
-      {
-        input: {
-          image: imageUrl,
-          scale: 4,
-          face_enhance: false
-        }
+    const prediction = await replicate.predictions.create({
+      version: "f121d640bd286e1fdc67f9799164c1d5be36ff74576ee11c803ae5b665dd46aa",
+      input: {
+        image: imageUrl,
+        scale: 4,
+        face_enhance: false
       }
-    );
+    });
 
-    return NextResponse.json({ output: prediction }, { status: 200 });
+    if (prediction?.error) {
+      return NextResponse.json({ detail: prediction.error }, { status: 500 });
+    }
+
+    return NextResponse.json(prediction, { status: 201 });
   } catch (error) {
     console.error('Error:', error);
     return NextResponse.json(

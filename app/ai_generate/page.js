@@ -94,7 +94,7 @@ export default function Generate() {
           {prediction.output && (
             <div className="relative aspect-square rounded-lg overflow-hidden">
               <Image
-                src={prediction.output[prediction.output.length - 1]}
+                src={Array.isArray(prediction.output) ? prediction.output[prediction.output.length - 1] : prediction.output}
                 alt="Generated image"
                 fill
                 className="object-contain"
