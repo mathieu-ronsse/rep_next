@@ -1,9 +1,16 @@
 'use client';
 
 import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import Breadcrumb from "@/components/Breadcrumb";
+import ModelSelector from "@/components/ModelSelector";
+import PromptInput from "@/components/PromptInput";
 import LoadingButton from "@/components/LoadingButton";
+import ImagePreview from "@/components/ImagePreview";
+
+const breadcrumbItems = [
+  { href: '/', label: 'Home' },
+  { icon: '🪄', label: 'Generate' }
+];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -11,6 +18,8 @@ export default function Generate() {
   const [prediction, setPrediction] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [model, setModel] = useState('sdxl');
+  const [prompt, setPrompt] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,7 +33,7 @@ export default function Generate() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          prompt: e.target.prompt.value,
+          prompt,
         }),
       });
       
@@ -54,29 +63,25 @@ export default function Generate() {
   };
 
   return (
-    <div className="container max-w-2xl mx-auto p-5">
-      <div className="flex items-center mb-6">
-        <Link href="/" className="text-blue-500 hover:text-blue-700 mr-4">
-          ← Back
-        </Link>
-        <h1 className="text-2xl font-bold">
-          Dream something with{" "}
-          <a href="https://replicate.com/stability-ai/sdxl" className="text-blue-500 hover:text-blue-700">
-            SDXL
-          </a>
-        </h1>
-      </div>
+    <div className="container max-w-2xl mx-auto px-6 py-8">
+      <Breadcrumb items={breadcrumbItems} />
+      
+      <h2 className="text-xl italic text-gray-400 mt-4 mb-8">
+        Create unique images from text descriptions.
+      </h2>
 
-      <form className="w-full flex" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          className="flex-grow"
-          name="prompt"
-          placeholder="Enter a prompt to display an image"
-        />
+      <form onSubmit={handleSubmit} className="flex flex-col space-y-6 w-full">
+        <div className="w-full">
+          <ModelSelector value={model} onChange={setModel} />
+        </div>
+        
+        <div className="w-full">
+          <PromptInput value={prompt} onChange={setPrompt} />
+        </div>
+        
         <LoadingButton
           type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 ml-2"
+          className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           isLoading={isLoading}
         >
           Generate
@@ -84,26 +89,20 @@ export default function Generate() {
       </form>
 
       {error && (
-        <div className="bg-red-500/10 text-red-500 rounded-lg p-4 mt-4">
+        <div className="bg-red-500/10 text-red-500 rounded-lg p-4 mt-6">
           {error}
         </div>
       )}
 
       {prediction && (
-        <div className="mt-4">
+        <div className="mt-6">
           {prediction.output && (
-            <div className="relative aspect-square rounded-lg overflow-hidden">
-              <Image
-                src={Array.isArray(prediction.output) ? prediction.output[prediction.output.length - 1] : prediction.output}
-                alt="Generated image"
-                fill
-                className="object-contain"
-                sizes="(max-width: 768px) 100vw, 768px"
-                priority
-              />
-            </div>
+            <ImagePreview
+              src={Array.isArray(prediction.output) ? prediction.output[prediction.output.length - 1] : prediction.output}
+              alt="Generated image"
+            />
           )}
-          <p className="mt-2 text-sm opacity-50">status: {prediction.status}</p>
+          <p className="mt-2 text-sm text-gray-400">status: {prediction.status}</p>
         </div>
       )}
     </div>

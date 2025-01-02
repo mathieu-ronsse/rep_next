@@ -3,31 +3,74 @@
 import Link from 'next/link';
 
 const services = [
-  { name: 'Generate', path: '/ai_generate', icon: '🎨' },
-  { name: 'Upscale', path: '/ai_upscale', icon: '⬆️' },
-  { name: 'Colorize', path: '#', icon: '🎨' },
-  { name: 'Extract', path: '#', icon: '✂️' },
-  { name: 'Outpaint', path: '#', icon: '🖼️' },
-  { name: 'Animate', path: '#', icon: '🎬' }
+  { 
+    name: 'Generate',
+    path: '/ai_generate',
+    icon: '🪄',
+    description: 'create unique images from text descriptions',
+    available: true
+  },
+  { 
+    name: 'Upscale',
+    path: '/ai_upscale',
+    icon: '🔍',
+    description: 'enhance image resolution without quality loss',
+    available: true
+  },
+  { 
+    name: 'Colorize',
+    path: '#',
+    icon: '🎨',
+    description: 'add vibrant colors to black and white images',
+    available: false
+  },
+  { 
+    name: 'Extract',
+    path: '#',
+    icon: '✂️',
+    description: 'remove backgrounds and isolate objects',
+    available: false
+  },
+  { 
+    name: 'Outpaint',
+    path: '#',
+    icon: '🖼️',
+    description: 'extend images beyond their boundaries',
+    available: false
+  },
+  { 
+    name: 'Animate',
+    path: '#',
+    icon: '🎬',
+    description: 'bring still images to life with motion',
+    available: false
+  }
 ];
 
 export default function Home() {
   return (
-    <div className="container max-w-4xl mx-auto p-5">
-      <h1 className="text-4xl font-bold text-center my-10 text-white">RepNext</h1>
+    <div className="container max-w-6xl mx-auto px-4 py-12">
+      <div className="text-center mb-16">
+        <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
+          Transform your images with AI
+        </h1>
+      </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {services.map((service) => (
           <Link 
             key={service.name} 
             href={service.path}
-            className={`p-6 rounded-lg shadow-lg bg-gray-800 hover:shadow-xl transition-shadow
-              flex flex-col items-center justify-center space-y-2
-              ${service.path === '#' ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 transform transition-transform'}`}
-            onClick={e => service.path === '#' && e.preventDefault()}
+            className={`p-6 rounded-lg shadow-lg bg-gray-800 hover:shadow-xl transition-all duration-300
+              flex flex-col items-center text-center space-y-3
+              ${service.available 
+                ? 'hover:scale-105 transform hover:bg-gray-700' 
+                : 'opacity-50 cursor-not-allowed'}`}
+            onClick={e => !service.available && e.preventDefault()}
           >
-            <span className="text-4xl">{service.icon}</span>
-            <span className="text-lg font-semibold text-white">{service.name}</span>
+            <span className="text-4xl mb-2">{service.icon}</span>
+            <h3 className="text-xl font-semibold text-white">{service.name}</h3>
+            <p className="text-sm text-gray-400">{service.description}</p>
           </Link>
         ))}
       </div>
