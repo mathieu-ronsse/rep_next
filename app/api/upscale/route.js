@@ -14,7 +14,7 @@ export async function POST(request) {
   }
 
   try {
-    const { imageUrl } = await request.json();
+    const { imageUrl, scale = 4 } = await request.json();
 
     if (!imageUrl) {
       return NextResponse.json(
@@ -27,7 +27,7 @@ export async function POST(request) {
       version: "f121d640bd286e1fdc67f9799164c1d5be36ff74576ee11c803ae5b665dd46aa",
       input: {
         image: imageUrl,
-        scale: 4,
+        scale,
         face_enhance: false
       }
     });

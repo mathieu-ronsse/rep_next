@@ -1,6 +1,4 @@
-'use client';
-
-import Image from 'next/image';
+import ImagePreview from '@/components/ImagePreview';
 
 export default function UpscaledImage({ prediction }) {
   if (!prediction?.output) return null;
@@ -8,14 +6,10 @@ export default function UpscaledImage({ prediction }) {
   return (
     <div className="space-y-2">
       <p className="text-sm opacity-50">status: {prediction.status}</p>
-      <div className="relative aspect-square rounded-lg overflow-hidden">
-        <Image
+      <div className="max-w-[500px] mx-auto">
+        <ImagePreview
           src={prediction.output}
           alt="Upscaled"
-          fill
-          className="object-contain"
-          sizes="(max-width: 768px) 100vw, 768px"
-          priority
         />
       </div>
     </div>
