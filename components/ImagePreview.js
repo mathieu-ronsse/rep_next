@@ -28,7 +28,7 @@ export default function ImagePreview({ src, alt = "Preview Image", onDownload })
   };
 
   return (
-    <div className="relative w-full h-full rounded-lg overflow-hidden group">
+    <div className="relative w-full h-full rounded-lg overflow-hidden">
       <Image
         src={src}
         alt={alt}
@@ -40,7 +40,7 @@ export default function ImagePreview({ src, alt = "Preview Image", onDownload })
       {onDownload !== false && (
         <button
           onClick={handleDownload}
-          className="absolute top-2 right-2 p-2 bg-gray-900/80 hover:bg-gray-900 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute top-2 right-2 p-2 bg-blue-500 hover:bg-blue-600 rounded-full transition-colors"
           title="Download Image"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">

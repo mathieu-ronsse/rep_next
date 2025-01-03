@@ -19,10 +19,10 @@ const services = [
   },
   { 
     name: 'Colorize',
-    path: '#',
+    path: '/ai_colorize',
     icon: '🎨',
     description: 'add vibrant colors to black and white images',
-    available: false
+    available: true
   },
   { 
     name: 'Extract',

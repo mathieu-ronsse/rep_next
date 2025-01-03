@@ -97,10 +97,12 @@ export default function Generate() {
       {prediction && (
         <div className="mt-6">
           {prediction.output && (
-            <ImagePreview
-              src={Array.isArray(prediction.output) ? prediction.output[prediction.output.length - 1] : prediction.output}
-              alt="Generated image"
-            />
+            <div className="aspect-square relative w-full">
+              <ImagePreview
+                src={Array.isArray(prediction.output) ? prediction.output[prediction.output.length - 1] : prediction.output}
+                alt="Generated image"
+              />
+            </div>
           )}
           <p className="mt-2 text-sm text-gray-400">status: {prediction.status}</p>
         </div>
