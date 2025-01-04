@@ -5,7 +5,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 import ModelSelector from "@/components/ModelSelector";
 import PromptInput from "@/components/PromptInput";
 import LoadingButton from "@/components/LoadingButton";
-import ImagePreview from "@/components/ImagePreview";
+import OutputImagePreview from "@/components/OutputImagePreview";
 
 const breadcrumbItems = [
   { href: '/', label: 'Home' },
@@ -97,12 +97,10 @@ export default function Generate() {
       {prediction && (
         <div className="mt-6">
           {prediction.output && (
-            <div className="aspect-square relative w-full">
-              <ImagePreview
-                src={Array.isArray(prediction.output) ? prediction.output[prediction.output.length - 1] : prediction.output}
-                alt="Generated image"
-              />
-            </div>
+            <OutputImagePreview
+              src={Array.isArray(prediction.output) ? prediction.output[prediction.output.length - 1] : prediction.output}
+              alt="Generated image"
+            />
           )}
           <p className="mt-2 text-sm text-gray-400">status: {prediction.status}</p>
         </div>

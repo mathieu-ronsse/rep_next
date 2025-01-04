@@ -1,4 +1,4 @@
-import ResponsiveImagePreview from '@/components/ResponsiveImagePreview';
+import OutputImagePreview from '@/components/OutputImagePreview';
 
 export default function UpscaledImage({ prediction }) {
   if (!prediction?.output) return null;
@@ -6,7 +6,7 @@ export default function UpscaledImage({ prediction }) {
   return (
     <div className="space-y-2">
       <p className="text-sm opacity-50">status: {prediction.status}</p>
-      <ResponsiveImagePreview
+      <OutputImagePreview
         src={prediction.output}
         alt="Upscaled"
       />

@@ -8,7 +8,7 @@ import ColorizedImage from './components/ColorizedImage';
 import ColorizeButton from './components/ColorizeButton';
 import ErrorMessage from '@/app/ai_upscale/components/ErrorMessage';
 import { validateImageFile, readImageFile } from './utils/imageProcessing';
-import { waitForPrediction } from '@/app/ai_upscale/utils/predictionPolling';
+import { waitForPrediction } from './utils/predictionPolling';
 
 const breadcrumbItems = [
   { href: '/', label: 'Home' },
