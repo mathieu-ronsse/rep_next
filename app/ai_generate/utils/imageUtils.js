@@ -1,11 +1,11 @@
 // Helper functions for image handling
 export const getValidImageUrl = (prediction) => {
-  if (!prediction?.output) return null;
+  if (!prediction) return null;
   
   // Handle array of images (FLUX model)
-  if (Array.isArray(prediction.output)) {
-    const lastImage = prediction.output[prediction.output.length - 1];
-    return lastImage || null;
+  if (Array.isArray(prediction)) {
+    // Get the last image from the array
+    return prediction[prediction.length - 1] || null;
   }
   
   // Handle single image URL (SDXL model)
@@ -15,10 +15,11 @@ export const getValidImageUrl = (prediction) => {
 export const isValidPrediction = (prediction) => {
   if (!prediction) return false;
   
-  const hasValidOutput = prediction.output && (
-    (Array.isArray(prediction.output) && prediction.output.length > 0) ||
-    (typeof prediction.output === 'string' && prediction.output.length > 0)
-  );
+  // Handle FLUX model response (array of images)
+  if (Array.isArray(prediction)) {
+    return prediction.length > 0;
+  }
   
-  return hasValidOutput && prediction.status === 'succeeded';
+  // Handle SDXL model response (prediction object)
+  return prediction.status === 'succeeded' && prediction.output;
 };

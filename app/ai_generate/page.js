@@ -20,12 +20,8 @@ export default function Generate() {
   const sdxl = useImageGeneration();
   const flux = useImageGeneration();
 
-  // Get the active prediction based on which model was last used
-  const activePrediction = sdxl.isLoading ? sdxl.prediction : 
-                          flux.isLoading ? flux.prediction :
-                          sdxl.prediction || flux.prediction;
-
-  const activeError = sdxl.error || flux.error;
+  // Get the active generation based on which model was last used
+  const activeGeneration = sdxl.isLoading ? sdxl : flux.isLoading ? flux : sdxl;
 
   return (
     <div className="container max-w-2xl mx-auto px-6 py-8">
@@ -63,13 +59,16 @@ export default function Generate() {
         </div>
       </form>
 
-      {activeError && (
+      {activeGeneration.error && (
         <div className="bg-red-500/10 text-red-500 rounded-lg p-4 mt-6">
-          {activeError}
+          {activeGeneration.error}
         </div>
       )}
 
-      <GenerationOutput prediction={activePrediction} />
+      <GenerationOutput 
+        prediction={activeGeneration.prediction}
+        status={activeGeneration.status}
+      />
     </div>
   );
 }

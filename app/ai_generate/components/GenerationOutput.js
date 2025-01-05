@@ -1,7 +1,7 @@
 import OutputImagePreview from '@/components/OutputImagePreview';
-import { getValidImageUrl, isValidPrediction } from '../utils/imageUtils';
+import { getValidImageUrl } from '../utils/imageUtils';
 
-export default function GenerationOutput({ prediction }) {
+export default function GenerationOutput({ prediction, status }) {
   if (!prediction) return null;
 
   const imageUrl = getValidImageUrl(prediction);
@@ -16,7 +16,7 @@ export default function GenerationOutput({ prediction }) {
         alt="Generated image"
       />
       <p className="mt-2 text-sm text-gray-400 text-center">
-        status: {prediction.status}
+        status: {status || (Array.isArray(prediction) ? 'succeeded' : prediction.status)}
       </p>
     </div>
   );

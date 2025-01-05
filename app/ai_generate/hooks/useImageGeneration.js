@@ -1,11 +1,11 @@
 import { useState } from 'react';
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+import { handleFluxModel, handleSdxlModel } from '../utils/modelUtils';
 
 export function useImageGeneration() {
   const [prediction, setPrediction] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState(null);
 
   const generate = async (prompt, modelVersion) => {
     if (!prompt.trim()) return;
@@ -13,6 +13,7 @@ export function useImageGeneration() {
     setIsLoading(true);
     setError(null);
     setPrediction(null);
+    setStatus('starting');
 
     try {
       const response = await fetch("/api/predictions", {
@@ -32,40 +33,21 @@ export function useImageGeneration() {
         throw new Error(result.detail || 'Failed to generate image');
       }
 
+      const handlers = {
+        setStatus,
+        setPrediction
+      };
+
       if (modelVersion === 'flux') {
-        // FLUX returns array of images directly
-        setPrediction({
-          status: 'succeeded',
-          output: result
-        });
+        await handleFluxModel(result, handlers);
       } else {
-        // SDXL returns a prediction that needs polling
-        setPrediction(result);
-        let currentPrediction = result;
-
-        while (
-          currentPrediction.status !== "succeeded" &&
-          currentPrediction.status !== "failed"
-        ) {
-          await sleep(1000);
-          const pollResponse = await fetch("/api/predictions/" + currentPrediction.id);
-          
-          if (!pollResponse.ok) {
-            throw new Error("Failed to fetch prediction status");
-          }
-          
-          currentPrediction = await pollResponse.json();
-          setPrediction(currentPrediction);
-        }
-
-        if (currentPrediction.status === "failed") {
-          throw new Error('Image generation failed');
-        }
+        await handleSdxlModel(result, handlers);
       }
     } catch (err) {
       console.error('Generation error:', err);
       setError(err.message);
       setPrediction(null);
+      setStatus('failed');
     } finally {
       setIsLoading(false);
     }
@@ -75,6 +57,7 @@ export function useImageGeneration() {
     prediction,
     error,
     isLoading,
+    status,
     generate
   };
 }
