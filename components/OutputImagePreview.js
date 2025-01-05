@@ -1,7 +1,17 @@
 import Image from 'next/image';
+import { useState } from 'react';
 
 export default function OutputImagePreview({ src, alt = "Output Image" }) {
   if (!src) return null;
+  
+  const [aspectRatio, setAspectRatio] = useState(1);
+
+  const handleImageLoad = (e) => {
+    if (e.target) {
+      const { naturalWidth, naturalHeight } = e.target;
+      setAspectRatio(naturalHeight / naturalWidth);
+    }
+  };
 
   const handleDownload = async () => {
     try {
@@ -20,16 +30,23 @@ export default function OutputImagePreview({ src, alt = "Output Image" }) {
     }
   };
 
+  const containerHeight = Math.min(704, 704 * aspectRatio);
+
   return (
-    <div className="w-full flex justify-center">
-      <div className="relative inline-block">
+    <div className="max-w-[704px] mx-auto">
+      <div 
+        className="relative w-full bg-gray-800 rounded-lg overflow-hidden"
+        style={{ height: `${containerHeight}px` }}
+      >
         <Image
           src={src}
           alt={alt}
-          width={704}
-          height={704}
-          className="w-auto h-auto max-w-[704px]"
+          fill
+          className="object-contain"
+          sizes="(max-width: 768px) 100vw, 704px"
           priority
+          unoptimized
+          onLoadingComplete={handleImageLoad}
         />
         <button
           onClick={handleDownload}
