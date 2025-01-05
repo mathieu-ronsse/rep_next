@@ -12,33 +12,43 @@ const WEBHOOK_HOST = process.env.VERCEL_URL
  
 export async function POST(request) {
   if (!process.env.REPLICATE_API_TOKEN) {
-    throw new Error(
-      'The REPLICATE_API_TOKEN environment variable is not set. See README.md for instructions on how to set it.'
+    return NextResponse.json(
+      { detail: 'The REPLICATE_API_TOKEN environment variable is not set.' },
+      { status: 500 }
     );
   }
  
-  const { prompt, modelVersion } = await request.json();
-  
-  if (!MODEL_VERSIONS[modelVersion]) {
-    return NextResponse.json(
-      { detail: `Invalid model version: ${modelVersion}` },
-      { status: 400 }
-    );
-  }
-
-  const modelConfig = MODEL_VERSIONS[modelVersion];
-  const input = modelConfig.getInput(prompt);
-  
-  let prediction;
-  
   try {
+    const { prompt, modelVersion } = await request.json();
+    
+    if (!MODEL_VERSIONS[modelVersion]) {
+      return NextResponse.json(
+        { detail: `Invalid model version: ${modelVersion}` },
+        { status: 400 }
+      );
+    }
+
+    const modelConfig = MODEL_VERSIONS[modelVersion];
+    const input = modelConfig.getInput(prompt);
+    
+    let result;
+    
     if (modelVersion === 'flux') {
-      prediction = await replicate.run(
+      // For FLUX, run directly and return output
+      result = await replicate.run(
         modelConfig.model,
         { input }
       );
+
+      // Ensure we have a valid result
+      if (!result || !Array.isArray(result)) {
+        throw new Error('Invalid response from FLUX model');
+      }
+
+      return NextResponse.json(result, { status: 201 });
     } else {
-      prediction = await replicate.predictions.create({
+      // For SDXL, create prediction and return prediction object
+      result = await replicate.predictions.create({
         version: modelConfig.version,
         input,
         ...(WEBHOOK_HOST && {
@@ -46,14 +56,18 @@ export async function POST(request) {
           webhook_events_filter: ["start", "completed"]
         })
       });
+
+      if (result?.error) {
+        throw new Error(result.error);
+      }
+
+      return NextResponse.json(result, { status: 201 });
     }
   } catch (error) {
-    return NextResponse.json({ detail: error.message }, { status: 500 });
+    console.error('Prediction error:', error);
+    return NextResponse.json(
+      { detail: error.message || 'An error occurred during prediction' },
+      { status: 500 }
+    );
   }
- 
-  if (prediction?.error) {
-    return NextResponse.json({ detail: prediction.error }, { status: 500 });
-  }
- 
-  return NextResponse.json(prediction, { status: 201 });
 }

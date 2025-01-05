@@ -5,7 +5,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 import ModelSelector from "@/components/ModelSelector";
 import PromptInput from "@/components/PromptInput";
 import LoadingButton from "@/components/LoadingButton";
-import OutputImagePreview from "@/components/OutputImagePreview";
+import GenerationOutput from "./components/GenerationOutput";
 import { useImageGeneration } from "./hooks/useImageGeneration";
 
 const breadcrumbItems = [
@@ -19,6 +19,13 @@ export default function Generate() {
   
   const sdxl = useImageGeneration();
   const flux = useImageGeneration();
+
+  // Get the active prediction based on which model was last used
+  const activePrediction = sdxl.isLoading ? sdxl.prediction : 
+                          flux.isLoading ? flux.prediction :
+                          sdxl.prediction || flux.prediction;
+
+  const activeError = sdxl.error || flux.error;
 
   return (
     <div className="container max-w-2xl mx-auto px-6 py-8">
@@ -56,37 +63,13 @@ export default function Generate() {
         </div>
       </form>
 
-      {(sdxl.error || flux.error) && (
+      {activeError && (
         <div className="bg-red-500/10 text-red-500 rounded-lg p-4 mt-6">
-          {sdxl.error || flux.error}
+          {activeError}
         </div>
       )}
 
-      {(sdxl.prediction || flux.prediction) && (
-        <div className="mt-6 space-y-8">
-          {sdxl.prediction?.output && (
-            <div>
-              <h3 className="text-lg font-semibold mb-2">SDXL Output</h3>
-              <OutputImagePreview
-                src={Array.isArray(sdxl.prediction.output) ? sdxl.prediction.output[sdxl.prediction.output.length - 1] : sdxl.prediction.output}
-                alt="SDXL generated image"
-              />
-              <p className="mt-2 text-sm text-gray-400">status: {sdxl.prediction.status}</p>
-            </div>
-          )}
-          
-          {flux.prediction?.output && (
-            <div>
-              <h3 className="text-lg font-semibold mb-2">FLUX Output</h3>
-              <OutputImagePreview
-                src={Array.isArray(flux.prediction.output) ? flux.prediction.output[flux.prediction.output.length - 1] : flux.prediction.output}
-                alt="FLUX generated image"
-              />
-              <p className="mt-2 text-sm text-gray-400">status: {flux.prediction.status}</p>
-            </div>
-          )}
-        </div>
-      )}
+      <GenerationOutput prediction={activePrediction} />
     </div>
   );
 }

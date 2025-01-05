@@ -2,7 +2,10 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 export default function OutputImagePreview({ src, alt = "Output Image" }) {
-  if (!src) return null;
+  // Early return if src is not a valid string URL
+  if (!src || typeof src !== 'string' || src.trim() === '') {
+    return null;
+  }
   
   const [aspectRatio, setAspectRatio] = useState(1);
 

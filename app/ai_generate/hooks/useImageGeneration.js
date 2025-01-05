@@ -12,6 +12,7 @@ export function useImageGeneration() {
     
     setIsLoading(true);
     setError(null);
+    setPrediction(null);
 
     try {
       const response = await fetch("/api/predictions", {
@@ -25,26 +26,46 @@ export function useImageGeneration() {
         }),
       });
       
-      let prediction = await response.json();
-      if (response.status !== 201) {
-        throw new Error(prediction.detail);
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.detail || 'Failed to generate image');
       }
-      setPrediction(prediction);
 
-      while (
-        prediction.status !== "succeeded" &&
-        prediction.status !== "failed"
-      ) {
-        await sleep(1000);
-        const response = await fetch("/api/predictions/" + prediction.id);
-        prediction = await response.json();
-        if (response.status !== 200) {
-          throw new Error(prediction.detail);
+      if (modelVersion === 'flux') {
+        // FLUX returns array of images directly
+        setPrediction({
+          status: 'succeeded',
+          output: result
+        });
+      } else {
+        // SDXL returns a prediction that needs polling
+        setPrediction(result);
+        let currentPrediction = result;
+
+        while (
+          currentPrediction.status !== "succeeded" &&
+          currentPrediction.status !== "failed"
+        ) {
+          await sleep(1000);
+          const pollResponse = await fetch("/api/predictions/" + currentPrediction.id);
+          
+          if (!pollResponse.ok) {
+            throw new Error("Failed to fetch prediction status");
+          }
+          
+          currentPrediction = await pollResponse.json();
+          setPrediction(currentPrediction);
         }
-        setPrediction(prediction);
+
+        if (currentPrediction.status === "failed") {
+          throw new Error('Image generation failed');
+        }
       }
     } catch (err) {
+      console.error('Generation error:', err);
       setError(err.message);
+      setPrediction(null);
     } finally {
       setIsLoading(false);
     }
