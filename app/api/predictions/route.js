@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import Replicate from "replicate";
+import { MODEL_VERSIONS } from "@/app/ai_generate/config/models";
  
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 });
  
-// In production and preview deployments (on Vercel), the VERCEL_URL environment variable is set.
-// In development (on your local machine), the NGROK_HOST environment variable is set.
 const WEBHOOK_HOST = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : process.env.NGROK_HOST;
@@ -18,20 +17,39 @@ export async function POST(request) {
     );
   }
  
-  const { prompt } = await request.json();
- 
-  const options = {
-    version: '8beff3369e81422112d93b89ca01426147de542cd4684c244b673b105188fe5f',
-    input: { prompt }
+  const { prompt, modelVersion } = await request.json();
+  
+  if (!MODEL_VERSIONS[modelVersion]) {
+    return NextResponse.json(
+      { detail: `Invalid model version: ${modelVersion}` },
+      { status: 400 }
+    );
   }
- 
-  if (WEBHOOK_HOST) {
-    options.webhook = `${WEBHOOK_HOST}/api/webhooks`
-    options.webhook_events_filter = ["start", "completed"]
+
+  const modelConfig = MODEL_VERSIONS[modelVersion];
+  const input = modelConfig.getInput(prompt);
+  
+  let prediction;
+  
+  try {
+    if (modelVersion === 'flux') {
+      prediction = await replicate.run(
+        modelConfig.model,
+        { input }
+      );
+    } else {
+      prediction = await replicate.predictions.create({
+        version: modelConfig.version,
+        input,
+        ...(WEBHOOK_HOST && {
+          webhook: `${WEBHOOK_HOST}/api/webhooks`,
+          webhook_events_filter: ["start", "completed"]
+        })
+      });
+    }
+  } catch (error) {
+    return NextResponse.json({ detail: error.message }, { status: 500 });
   }
- 
-  // A prediction is the result you get when you run a model, including the input, output, and other details
-  const prediction = await replicate.predictions.create(options);
  
   if (prediction?.error) {
     return NextResponse.json({ detail: prediction.error }, { status: 500 });
