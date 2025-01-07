@@ -40,12 +40,18 @@ export async function POST(request) {
         { input }
       );
 
+      console.log('FLUX model result:', result);
+
       // Ensure we have a valid result
-      if (!result || !Array.isArray(result)) {
+      if (!result || !Array.isArray(result) || result.length === 0) {
         throw new Error('Invalid response from FLUX model');
       }
 
-      return NextResponse.json(result, { status: 201 });
+      // Wrap the result in a format similar to SDXL for consistent handling
+      return NextResponse.json({
+        status: 'succeeded',
+        output: result[result.length - 1]
+      }, { status: 201 });
     } else {
       // For SDXL, create prediction and return prediction object
       result = await replicate.predictions.create({

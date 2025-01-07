@@ -16,12 +16,12 @@ const breadcrumbItems = [
 export default function Generate() {
   const [model, setModel] = useState('sdxl');
   const [prompt, setPrompt] = useState('');
-  
-  const sdxl = useImageGeneration();
-  const flux = useImageGeneration();
+  const { prediction, error, isLoading, status, generate } = useImageGeneration();
 
-  // Get the active generation based on which model was last used
-  const activeGeneration = sdxl.isLoading ? sdxl : flux.isLoading ? flux : sdxl;
+  const handleGenerate = async () => {
+    if (!prompt.trim()) return;
+    await generate(prompt, model);
+  };
 
   return (
     <div className="container max-w-2xl mx-auto px-6 py-8">
@@ -32,42 +32,27 @@ export default function Generate() {
       </h2>
 
       <form onSubmit={(e) => e.preventDefault()} className="flex flex-col space-y-6 w-full">
-        <div className="w-full">
-          <ModelSelector value={model} onChange={setModel} />
-        </div>
+        <ModelSelector value={model} onChange={setModel} />
+        <PromptInput value={prompt} onChange={setPrompt} />
         
-        <div className="w-full">
-          <PromptInput value={prompt} onChange={setPrompt} />
-        </div>
-        
-        <div className="flex gap-4">
-          <LoadingButton
-            onClick={() => sdxl.generate(prompt, 'sdxl')}
-            className="flex-1 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-            isLoading={sdxl.isLoading}
-          >
-            Generate with SDXL
-          </LoadingButton>
-          
-          <LoadingButton
-            onClick={() => flux.generate(prompt, 'flux')}
-            className="flex-1 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition-colors"
-            isLoading={flux.isLoading}
-          >
-            Generate with FLUX
-          </LoadingButton>
-        </div>
+        <LoadingButton
+          onClick={handleGenerate}
+          className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+          isLoading={isLoading}
+        >
+          Generate
+        </LoadingButton>
       </form>
 
-      {activeGeneration.error && (
+      {error && (
         <div className="bg-red-500/10 text-red-500 rounded-lg p-4 mt-6">
-          {activeGeneration.error}
+          {error}
         </div>
       )}
 
       <GenerationOutput 
-        prediction={activeGeneration.prediction}
-        status={activeGeneration.status}
+        prediction={prediction}
+        status={status}
       />
     </div>
   );

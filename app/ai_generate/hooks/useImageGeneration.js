@@ -8,7 +8,10 @@ export function useImageGeneration() {
   const [status, setStatus] = useState(null);
 
   const generate = async (prompt, modelVersion) => {
-    if (!prompt.trim()) return;
+    if (!prompt.trim()) {
+      setError('Please enter a prompt');
+      return;
+    }
     
     setIsLoading(true);
     setError(null);
@@ -16,6 +19,8 @@ export function useImageGeneration() {
     setStatus('starting');
 
     try {
+      console.log(`Starting generation with model: ${modelVersion}`);
+      
       const response = await fetch("/api/predictions", {
         method: "POST",
         headers: {
@@ -33,9 +38,12 @@ export function useImageGeneration() {
         throw new Error(result.detail || 'Failed to generate image');
       }
 
+      console.log(`Generation response received for ${modelVersion}:`, result);
+
       const handlers = {
         setStatus,
-        setPrediction
+        setPrediction,
+        setError
       };
 
       if (modelVersion === 'flux') {

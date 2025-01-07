@@ -7,7 +7,10 @@ export default function GenerationOutput({ prediction, status }) {
   const imageUrl = getValidImageUrl(prediction);
   
   // Only render if we have a valid image URL
-  if (!imageUrl) return null;
+  if (!imageUrl) {
+    console.log('No valid image URL found in prediction:', prediction);
+    return null;
+  }
 
   return (
     <div className="mt-6">
