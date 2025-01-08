@@ -4,6 +4,9 @@ import { getValidImageUrl } from '../utils/imageUtils';
 export default function GenerationOutput({ prediction, status }) {
   if (!prediction) return null;
 
+  //console.log('prediction:', prediction);
+  console.log('Full prediction object:', JSON.stringify(prediction, null, 2));
+
   const imageUrl = getValidImageUrl(prediction);
   
   // Only render if we have a valid image URL

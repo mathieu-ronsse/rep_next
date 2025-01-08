@@ -40,17 +40,12 @@ export async function POST(request) {
         { input }
       );
 
-      console.log('FLUX model result:', result);
+      console.log('FLUX API response:', result);
 
-      // Ensure we have a valid result
-      if (!result || !Array.isArray(result) || result.length === 0) {
-        throw new Error('Invalid response from FLUX model');
-      }
-
-      // Wrap the result in a format similar to SDXL for consistent handling
+      // Return in a consistent format
       return NextResponse.json({
         status: 'succeeded',
-        output: result[result.length - 1]
+        output: Array.isArray(result) ? result[0] : result
       }, { status: 201 });
     } else {
       // For SDXL, create prediction and return prediction object

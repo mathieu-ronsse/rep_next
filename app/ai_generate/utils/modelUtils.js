@@ -4,12 +4,14 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export async function handleFluxModel(result, { setStatus, setPrediction, setError }) {
   try {
-    // For FLUX, result is directly the array of images
-    if (!Array.isArray(result) || result.length === 0) {
+    console.log('Processing FLUX result:', result);
+    //console.log('handleFluxModel result: ', JSON.stringify(result, null, 2));
+
+    if (!result?.status || !result?.output) {
       throw new Error('Invalid response from FLUX model');
     }
     
-    setStatus('succeeded');
+    setStatus(result.status);
     setPrediction(result);
   } catch (error) {
     console.error('Error handling FLUX model:', error);
