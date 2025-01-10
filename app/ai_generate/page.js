@@ -33,7 +33,7 @@ export default function Generate() {
 
       <form onSubmit={(e) => e.preventDefault()} className="flex flex-col space-y-6 w-full">
         <ModelSelector value={model} onChange={setModel} />
-        <PromptInput value={prompt} onChange={setPrompt} />
+        <PromptInput value={prompt} onChange={setPrompt} placeholder="Describe the image you want to generate..." />
         
         <LoadingButton
           onClick={handleGenerate}

@@ -40,10 +40,10 @@ const services = [
   },
   { 
     name: 'Animate',
-    path: '#',
+    path: '/ai_animate',
     icon: '🎬',
     description: 'bring still images to life with motion',
-    available: false
+    available: true
   }
 ];
 
@@ -61,7 +61,7 @@ export default function Home() {
           <Link 
             key={service.name} 
             href={service.path}
-            prefetch={service.available} // Only prefetch available services
+            prefetch={service.available}
             className={`p-6 rounded-lg shadow-lg bg-gray-800 hover:shadow-xl transition-all duration-300
               flex flex-col items-center text-center space-y-3
               ${service.available 
